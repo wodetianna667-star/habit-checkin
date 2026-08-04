@@ -8,6 +8,8 @@ function friendlyAuthError(message: string): string {
   if (/password should be at least/i.test(message)) return "密码至少需要 6 位";
   if (/email.*(valid|format)/i.test(message)) return "请输入有效的邮箱地址";
   if (/rate limit/i.test(message)) return "操作太频繁，请稍后再试";
+  if (/email signups are disabled/i.test(message))
+    return "已关闭邮箱注册功能，请在 Supabase 开启「Allow new users to sign up」";
   return message;
 }
 
