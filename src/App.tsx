@@ -12,7 +12,7 @@ function ConfigScreen() {
   return (
     <div className="center-screen">
       <div className="card config-card">
-        <h1>习惯打卡</h1>
+        <h1>21天</h1>
         <p className="muted">尚未配置 Supabase 环境变量。</p>
         <ol className="config-steps">
           <li>复制 <code>.env.example</code> 为 <code>.env</code></li>

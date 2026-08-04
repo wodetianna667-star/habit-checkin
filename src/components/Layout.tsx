@@ -20,7 +20,7 @@ export default function Layout({ session }: Props) {
     <div className="app">
       <header className="header">
         <div>
-          <h1 className="app-title">习惯打卡</h1>
+          <h1 className="app-title">21天</h1>
           <p className="app-date">{dateLabel}</p>
         </div>
         <button className="btn-ghost" onClick={() => void handleLogout()}>

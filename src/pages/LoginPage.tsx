@@ -54,7 +54,7 @@ export default function LoginPage() {
     <div className="center-screen">
       <div className="card login-card">
         <div className="login-logo">✅</div>
-        <h1 className="login-title">习惯打卡</h1>
+        <h1 className="login-title">21天</h1>
         <p className="muted center">每天一点点，坚持看得见</p>
         <div className="seg login-seg">
           <button

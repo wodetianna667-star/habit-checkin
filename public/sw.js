@@ -1,4 +1,4 @@
-/* 习惯打卡 Service Worker：接收手机推送 */
+/* 21天 Service Worker：接收手机推送 */
 self.addEventListener("push", (event) => {
   let data = {};
   try {
@@ -12,7 +12,7 @@ self.addEventListener("push", (event) => {
     badge: data.badge || undefined,
     data: { url: data.url || self.registration.scope },
   };
-  event.waitUntil(self.registration.showNotification(data.title || "习惯打卡提醒", options));
+  event.waitUntil(self.registration.showNotification(data.title || "21天提醒", options));
 });
 
 self.addEventListener("notificationclick", (event) => {
