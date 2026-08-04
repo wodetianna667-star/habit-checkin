@@ -9,6 +9,7 @@
 - 添加 / 编辑 / 删除习惯：名称、emoji、周期（每日 / 每周 / 每月）、每周期目标次数
 - 支持**一次性任务**：设定截止日期，到期未完成自动标记为已过期
 - 支持**定时提醒**：每个习惯可设每天 / 每周 / 每月固定时间提醒，**可添加多个提醒时间**（打开网页时弹提示 + 浏览器通知）
+- 支持**手机推送**：网页关闭也能收到提醒（安卓 Chrome / iPhone Safari 添加到主屏幕）
 - 今日页：点 + 打卡、点 − 撤销，实时进度（如 3/8），达标自动打勾，顶部显示「今日已完成 X 项」
 - 历史页：月历视图（格子里的小数字 = 当天完成的习惯数）、连续打卡天数、本月完成天数
 - 首次使用提供「喝水 / 运动 / 读书」示例习惯一键添加
@@ -64,3 +65,22 @@ pnpm dev
 - **每月**：本月 1 日起累计达标
 - 「今日已完成」= 当天完成（每日达标、或周 / 月习惯当天首次达到周期目标）的习惯数量
 - 连续打卡 = 从今天（或昨天）往前，每天至少完成 1 个习惯的连续天数
+
+
+## 手机推送（Web Push）部署说明
+
+前端代码与 Edge Function 已就绪，按以下步骤启用：
+
+1. **数据库**：在 SQL Editor 执行 `supabase/migrations/20260805000000_add_push.sql`。
+2. **GitHub 仓库**：Settings -> Secrets 新增 `VITE_VAPID_PUBLIC_KEY`（值见下方）。
+3. **Supabase Edge Function**：
+   - 控制台 -> Edge Functions -> Create a new function，名称填 `send-reminders`，粘贴 `supabase/functions/send-reminders/index.ts` 的内容；
+   - 创建时把 **Verify JWT** 关闭；
+   - 在 Edge Functions -> Secrets 中添加：
+     - `VAPID_PUBLIC_KEY`（公钥）
+     - `VAPID_PRIVATE_KEY`（私钥）
+     - `VAPID_SUBJECT=https://wodetianna667-star.github.io/habit-checkin/`
+4. **定时任务**：Edge Functions -> Scheduled Functions，添加 `send-reminders`，cron 填 `*/5 * * * *`（每 5 分钟）。
+5. **手机端**：安卓用 Chrome、iPhone 用 Safari 打开网站并「添加到主屏幕」，然后到「习惯」页点「开启推送」，允许通知。
+
+VAPID 密钥由 `node -e` 用 `crypto.createECDH("prime256v1")` 生成（base64url 编码），生成后公钥给前端、私钥仅存 Supabase Secrets。

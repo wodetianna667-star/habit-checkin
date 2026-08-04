@@ -3,6 +3,7 @@ import type { Habit } from "../lib/types";
 import { createHabit, deleteHabit, fetchHabits, updateHabit, type HabitInput } from "../lib/api";
 import { formatShortCN, periodLabel } from "../lib/date";
 import HabitForm from "../components/HabitForm";
+import PushSettings from "../components/PushSettings";
 
 export default function HabitsPage() {
   const [habits, setHabits] = useState<Habit[]>([]);
@@ -70,6 +71,7 @@ export default function HabitsPage() {
           + 添加
         </button>
       </div>
+      <PushSettings />
       {loading ? (
         <p className="muted center pad">加载中…</p>
       ) : error ? (
