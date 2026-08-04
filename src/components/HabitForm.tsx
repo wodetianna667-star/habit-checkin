@@ -35,6 +35,7 @@ export default function HabitForm({ initial, busy, onSubmit, onClose }: Props) {
   );
   const [reminderWeekday, setReminderWeekday] = useState(initial?.reminder_weekday ?? 1);
   const [reminderDay, setReminderDay] = useState(initial?.reminder_day ?? 1);
+  const [reminderMessage, setReminderMessage] = useState(initial?.reminder_message ?? "");
 
   function handleSubmit(e: FormEvent) {
     e.preventDefault();
@@ -53,6 +54,7 @@ export default function HabitForm({ initial, busy, onSubmit, onClose }: Props) {
       reminder_times: reminderOn ? validTimes : null,
       reminder_weekday: reminderOn && reminderFreq === "weekly" ? reminderWeekday : null,
       reminder_day: reminderOn && reminderFreq === "monthly" ? reminderDay : null,
+      reminder_message: reminderOn ? reminderMessage.trim() || null : null,
     });
   }
 
@@ -233,6 +235,16 @@ export default function HabitForm({ initial, busy, onSubmit, onClose }: Props) {
                   >
                     + 添加时间
                   </button>
+                </div>
+                <div className="field">
+                  <label>提醒内容（选填）</label>
+                  <input
+                    value={reminderMessage}
+                    onChange={(e) => setReminderMessage(e.target.value)}
+                    placeholder="如：该喝水啦"
+                    maxLength={30}
+                  />
+                  <p className="muted small">留空则使用默认文案</p>
                 </div>
               </div>
             )}

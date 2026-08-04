@@ -22,6 +22,7 @@ export interface HabitInput {
   reminder_times: string[] | null;
   reminder_weekday: number | null;
   reminder_day: number | null;
+  reminder_message: string | null;
 }
 
 export async function createHabit(input: HabitInput): Promise<Habit> {

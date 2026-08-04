@@ -25,6 +25,7 @@ function dueKey(habit: Habit, time: string): string | null {
 }
 
 function reminderMessage(habit: Habit): string {
+  if (habit.reminder_message?.trim()) return habit.reminder_message.trim();
   if (habit.type === "once") {
     return `「${habit.name}」记得完成哦，别让它过期啦`;
   }

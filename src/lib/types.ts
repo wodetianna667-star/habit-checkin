@@ -20,6 +20,8 @@ export interface Habit {
   reminder_weekday: number | null;
   /** 每月几号提醒（1-31） */
   reminder_day: number | null;
+  /** 专属提醒文案（如「该喝水啦」）；留空则用默认文案 */
+  reminder_message: string | null;
   sort_order: number;
   created_at: string;
 }

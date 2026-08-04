@@ -13,9 +13,9 @@ import { showBrowserNotification, useReminders } from "../lib/reminders";
 import HabitCard from "../components/HabitCard";
 
 const EXAMPLES: HabitInput[] = [
-  { name: "喝水", emoji: "💧", period: "daily", target: 8, type: "recurring", end_date: null, reminder_enabled: false, reminder_frequency: null, reminder_times: null, reminder_weekday: null, reminder_day: null },
-  { name: "运动", emoji: "🏃", period: "weekly", target: 3, type: "recurring", end_date: null, reminder_enabled: false, reminder_frequency: null, reminder_times: null, reminder_weekday: null, reminder_day: null },
-  { name: "读书", emoji: "📖", period: "daily", target: 1, type: "recurring", end_date: null, reminder_enabled: false, reminder_frequency: null, reminder_times: null, reminder_weekday: null, reminder_day: null },
+  { name: "喝水", emoji: "💧", period: "daily", target: 8, type: "recurring", end_date: null, reminder_enabled: false, reminder_frequency: null, reminder_times: null, reminder_weekday: null, reminder_day: null, reminder_message: "该喝水啦" },
+  { name: "运动", emoji: "🏃", period: "weekly", target: 3, type: "recurring", end_date: null, reminder_enabled: false, reminder_frequency: null, reminder_times: null, reminder_weekday: null, reminder_day: null, reminder_message: "该运动啦" },
+  { name: "读书", emoji: "📖", period: "daily", target: 1, type: "recurring", end_date: null, reminder_enabled: false, reminder_frequency: null, reminder_times: null, reminder_weekday: null, reminder_day: null, reminder_message: "该读书啦" },
 ];
 
 export default function TodayPage() {
