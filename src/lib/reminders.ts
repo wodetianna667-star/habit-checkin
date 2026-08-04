@@ -5,16 +5,14 @@ import { isoWeekday, nowTimeStr, startOfMonth, startOfWeek, toDateStr, todayStr 
 const SHOWN_PREFIX = "habit-reminder-shown-";
 
 /**
- * 计算提醒是否到点。返回一个周期内的唯一 key（用于去重），未到点返回 null。
+ * 判断某提醒时间是否到点。返回一个周期内的唯一 key（用于去重），未到点返回 null。
  * daily  -> d-<日期>
  * weekly -> w-<本周周一日期>
  * monthly-> m-<本月1日>
  */
-function dueKey(habit: Habit): string | null {
-  if (!habit.reminder_time) return null;
+function dueKey(habit: Habit, time: string): string | null {
   const now = new Date();
-  const timeStr = nowTimeStr();
-  if (timeStr < habit.reminder_time) return null;
+  if (nowTimeStr() < time) return null;
   if (habit.reminder_frequency === "weekly") {
     if (isoWeekday(now) !== habit.reminder_weekday) return null;
     return `w-${toDateStr(startOfWeek(now))}`;
@@ -45,8 +43,8 @@ export function showBrowserNotification(message: string) {
 }
 
 /**
- * 检查已开启提醒的习惯是否到点；到点则触发回调并记录，避免重复提醒。
- * 每分钟检查一次（页面打开期间）。
+ * 检查已开启提醒的习惯是否到点（支持每个习惯多个提醒时间）；
+ * 到点则触发回调并记录，避免重复提醒。页面打开期间每分钟检查一次。
  */
 export function useReminders(habits: Habit[], onFire: (message: string) => void) {
   const firedRef = useRef<Set<string>>(new Set());
@@ -54,28 +52,31 @@ export function useReminders(habits: Habit[], onFire: (message: string) => void)
   useEffect(() => {
     const check = () => {
       for (const habit of habits) {
-        if (!habit.reminder_enabled) continue;
-        const key = dueKey(habit);
-        if (!key) continue;
-        const storageKey = SHOWN_PREFIX + habit.id + "-" + key;
-        if (firedRef.current.has(storageKey)) continue;
-        let shown = false;
-        try {
-          shown = localStorage.getItem(storageKey) === "1";
-        } catch {
-          /* ignore */
-        }
-        if (shown) {
+        if (!habit.reminder_enabled || !habit.reminder_times?.length) continue;
+        for (const time of habit.reminder_times) {
+          if (!time) continue;
+          const key = dueKey(habit, time);
+          if (!key) continue;
+          const storageKey = SHOWN_PREFIX + habit.id + "-" + key + "-" + time;
+          if (firedRef.current.has(storageKey)) continue;
+          let shown = false;
+          try {
+            shown = localStorage.getItem(storageKey) === "1";
+          } catch {
+            /* ignore */
+          }
+          if (shown) {
+            firedRef.current.add(storageKey);
+            continue;
+          }
           firedRef.current.add(storageKey);
-          continue;
+          try {
+            localStorage.setItem(storageKey, "1");
+          } catch {
+            /* ignore */
+          }
+          onFire(reminderMessage(habit));
         }
-        firedRef.current.add(storageKey);
-        try {
-          localStorage.setItem(storageKey, "1");
-        } catch {
-          /* ignore */
-        }
-        onFire(reminderMessage(habit));
       }
     };
     check();

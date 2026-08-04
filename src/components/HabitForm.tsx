@@ -30,7 +30,9 @@ export default function HabitForm({ initial, busy, onSubmit, onClose }: Props) {
   const [endDate, setEndDate] = useState(initial?.end_date ?? "");
   const [reminderOn, setReminderOn] = useState(initial?.reminder_enabled ?? false);
   const [reminderFreq, setReminderFreq] = useState<Period>(initial?.reminder_frequency ?? "daily");
-  const [reminderTime, setReminderTime] = useState(initial?.reminder_time ?? "20:00");
+  const [times, setTimes] = useState<string[]>(
+    initial?.reminder_times?.length ? [...initial.reminder_times] : ["20:00"],
+  );
   const [reminderWeekday, setReminderWeekday] = useState(initial?.reminder_weekday ?? 1);
   const [reminderDay, setReminderDay] = useState(initial?.reminder_day ?? 1);
 
@@ -38,6 +40,7 @@ export default function HabitForm({ initial, busy, onSubmit, onClose }: Props) {
     e.preventDefault();
     if (!name.trim()) return;
     if (type === "once" && !endDate) return;
+    const validTimes = times.map((t) => t.trim()).filter((t) => t.length > 0);
     onSubmit({
       name: name.trim(),
       emoji: emoji.trim() || "✅",
@@ -45,12 +48,20 @@ export default function HabitForm({ initial, busy, onSubmit, onClose }: Props) {
       target: Math.max(1, Math.floor(target) || 1),
       type,
       end_date: type === "once" ? endDate || null : null,
-      reminder_enabled: reminderOn,
+      reminder_enabled: reminderOn && validTimes.length > 0,
       reminder_frequency: reminderOn ? reminderFreq : null,
-      reminder_time: reminderOn ? reminderTime : null,
+      reminder_times: reminderOn ? validTimes : null,
       reminder_weekday: reminderOn && reminderFreq === "weekly" ? reminderWeekday : null,
       reminder_day: reminderOn && reminderFreq === "monthly" ? reminderDay : null,
     });
+  }
+
+  function updateTime(idx: number, value: string) {
+    setTimes((prev) => prev.map((t, i) => (i === idx ? value : t)));
+  }
+
+  function removeTime(idx: number) {
+    setTimes((prev) => prev.filter((_, i) => i !== idx));
   }
 
   return (
@@ -175,8 +186,8 @@ export default function HabitForm({ initial, busy, onSubmit, onClose }: Props) {
                     </button>
                   ))}
                 </div>
-                <div className="reminder-time-row">
-                  {reminderFreq === "weekly" && (
+                {reminderFreq === "weekly" && (
+                  <div className="reminder-select-row">
                     <select value={reminderWeekday} onChange={(e) => setReminderWeekday(Number(e.target.value))}>
                       {WEEKDAYS.map((w) => (
                         <option key={w.v} value={w.v}>
@@ -184,8 +195,10 @@ export default function HabitForm({ initial, busy, onSubmit, onClose }: Props) {
                         </option>
                       ))}
                     </select>
-                  )}
-                  {reminderFreq === "monthly" && (
+                  </div>
+                )}
+                {reminderFreq === "monthly" && (
+                  <div className="reminder-select-row">
                     <select value={reminderDay} onChange={(e) => setReminderDay(Number(e.target.value))}>
                       {Array.from({ length: 31 }, (_, i) => i + 1).map((d) => (
                         <option key={d} value={d}>
@@ -193,8 +206,33 @@ export default function HabitForm({ initial, busy, onSubmit, onClose }: Props) {
                         </option>
                       ))}
                     </select>
-                  )}
-                  <input type="time" value={reminderTime} onChange={(e) => setReminderTime(e.target.value)} />
+                  </div>
+                )}
+                <div className="reminder-times">
+                  {times.map((t, idx) => (
+                    <div key={idx} className="reminder-time-row">
+                      <input
+                        type="time"
+                        value={t}
+                        onChange={(e) => updateTime(idx, e.target.value)}
+                      />
+                      <button
+                        type="button"
+                        className="btn small danger"
+                        onClick={() => removeTime(idx)}
+                        disabled={times.length <= 1}
+                      >
+                        删除
+                      </button>
+                    </div>
+                  ))}
+                  <button
+                    type="button"
+                    className="btn small"
+                    onClick={() => setTimes((prev) => [...prev, "20:00"])}
+                  >
+                    + 添加时间
+                  </button>
                 </div>
               </div>
             )}

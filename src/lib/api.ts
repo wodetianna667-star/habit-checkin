@@ -19,7 +19,7 @@ export interface HabitInput {
   end_date: string | null;
   reminder_enabled: boolean;
   reminder_frequency: Period | null;
-  reminder_time: string | null;
+  reminder_times: string[] | null;
   reminder_weekday: number | null;
   reminder_day: number | null;
 }

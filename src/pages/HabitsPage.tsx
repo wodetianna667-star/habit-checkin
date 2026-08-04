@@ -93,7 +93,7 @@ export default function HabitsPage() {
                 {h.type === "once"
                   ? `一次性 · ${h.end_date ? `截止 ${formatShortCN(h.end_date)}` : "未设截止"}`
                   : `${periodLabel(h.period)} · ${h.target} 次`}
-                {h.reminder_enabled && ` · 提醒 ${h.reminder_time ?? ""}`}
+                {h.reminder_enabled && h.reminder_times?.length && ` · 提醒 ${h.reminder_times.join("、")}`}
               </div>
             </div>
             <div className="manage-actions">

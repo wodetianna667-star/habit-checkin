@@ -14,8 +14,8 @@ export interface Habit {
   end_date: string | null;
   reminder_enabled: boolean;
   reminder_frequency: Period | null;
-  /** HH:MM（24 小时制） */
-  reminder_time: string | null;
+  /** 提醒时间列表（HH:MM，24 小时制），可多个 */
+  reminder_times: string[] | null;
   /** 每周几提醒（1=周一 .. 7=周日） */
   reminder_weekday: number | null;
   /** 每月几号提醒（1-31） */

@@ -21,8 +21,8 @@ export default function HabitCard({ progress, onIncrement }: Props) {
   } else {
     metaText = `${periodLabel(habit.period)} · 目标 ${habit.target} 次`;
   }
-  if (habit.reminder_enabled && !isOnce) {
-    metaText += ` · 提醒 ${habit.reminder_time ?? ""}`;
+  if (habit.reminder_enabled && habit.reminder_times?.length && !isOnce) {
+    metaText += ` · 提醒 ${habit.reminder_times.join("、")}`;
   }
 
   return (

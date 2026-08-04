@@ -935,3 +935,43 @@ code {
   cursor: pointer;
   flex-shrink: 0;
 }
+
+/* ---------- 多提醒时间 ---------- */
+
+.reminder-select-row {
+  margin-top: 10px;
+}
+
+.reminder-select-row select {
+  width: 100%;
+  padding: 11px 12px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  font-size: 15px;
+  background: #fff;
+  color: var(--text);
+  outline: none;
+}
+
+.reminder-times {
+  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.reminder-times .reminder-time-row input[type="time"] {
+  flex: 1;
+  min-width: 0;
+  padding: 11px 12px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  font-size: 15px;
+  background: #fff;
+  color: var(--text);
+  outline: none;
+}
+
+.reminder-times .btn {
+  flex-shrink: 0;
+}
