@@ -34,10 +34,10 @@ function reminderMessage(habit: Habit): string {
 export function showBrowserNotification(message: string) {
   if (typeof Notification === "undefined") return;
   if (Notification.permission === "granted") {
-    new Notification("习惯打卡提醒", { body: message });
+    new Notification("任务来了", { body: message });
   } else if (Notification.permission === "default") {
     void Notification.requestPermission().then((p) => {
-      if (p === "granted") new Notification("习惯打卡提醒", { body: message });
+      if (p === "granted") new Notification("任务来了", { body: message });
     });
   }
 }

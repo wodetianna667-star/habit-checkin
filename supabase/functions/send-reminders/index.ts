@@ -119,8 +119,8 @@ Deno.serve(async (_req) => {
         .eq("user_id", habit.user_id);
 
       const payload = JSON.stringify({
-        title: "习惯打卡提醒",
-        body: `该打卡啦：「${habit.name}」`,
+        title: "任务来了",
+        body: `「${habit.name}」`,
         url: "https://wodetianna667-star.github.io/habit-checkin/",
       });
 
