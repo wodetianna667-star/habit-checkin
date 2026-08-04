@@ -18,9 +18,12 @@ export interface HabitInput {
 }
 
 export async function createHabit(input: HabitInput): Promise<Habit> {
+  const {
+    data: { user },
+  } = await getSupabase().auth.getUser();
   const { data, error } = await getSupabase()
     .from("habits")
-    .insert({ ...input, sort_order: 0 })
+    .insert({ ...input, sort_order: 0, user_id: user?.id })
     .select()
     .single();
   if (error) throw new Error(error.message);

@@ -7,7 +7,7 @@ create extension if not exists pgcrypto;
 -- 习惯表
 create table if not exists public.habits (
   id uuid primary key default gen_random_uuid(),
-  user_id uuid not null references auth.users (id) on delete cascade,
+  user_id uuid not null default auth.uid() references auth.users (id) on delete cascade,
   name text not null check (char_length(trim(name)) between 1 and 40),
   emoji text not null default '✅',
   period text not null default 'daily' check (period in ('daily', 'weekly', 'monthly')),
@@ -19,7 +19,7 @@ create table if not exists public.habits (
 -- 打卡表：(user_id, habit_id, date) 唯一，upsert 累计
 create table if not exists public.checkins (
   id uuid primary key default gen_random_uuid(),
-  user_id uuid not null references auth.users (id) on delete cascade,
+  user_id uuid not null default auth.uid() references auth.users (id) on delete cascade,
   habit_id uuid not null references public.habits (id) on delete cascade,
   date date not null,
   count integer not null default 1 check (count >= 0),
