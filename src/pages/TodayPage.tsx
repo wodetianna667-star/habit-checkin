@@ -7,14 +7,15 @@ import {
   incrementCheckin,
   type HabitInput,
 } from "../lib/api";
-import { periodStartStr, computeProgress } from "../lib/progress";
+import { rangeStartStr, computeProgress } from "../lib/progress";
 import { periodLabel, todayStr } from "../lib/date";
+import { showBrowserNotification, useReminders } from "../lib/reminders";
 import HabitCard from "../components/HabitCard";
 
 const EXAMPLES: HabitInput[] = [
-  { name: "喝水", emoji: "💧", period: "daily", target: 8 },
-  { name: "运动", emoji: "🏃", period: "weekly", target: 3 },
-  { name: "读书", emoji: "📖", period: "daily", target: 1 },
+  { name: "喝水", emoji: "💧", period: "daily", target: 8, type: "recurring", end_date: null, reminder_enabled: false, reminder_frequency: null, reminder_time: null, reminder_weekday: null, reminder_day: null },
+  { name: "运动", emoji: "🏃", period: "weekly", target: 3, type: "recurring", end_date: null, reminder_enabled: false, reminder_frequency: null, reminder_time: null, reminder_weekday: null, reminder_day: null },
+  { name: "读书", emoji: "📖", period: "daily", target: 1, type: "recurring", end_date: null, reminder_enabled: false, reminder_frequency: null, reminder_time: null, reminder_weekday: null, reminder_day: null },
 ];
 
 export default function TodayPage() {
@@ -23,6 +24,7 @@ export default function TodayPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [toast, setToast] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -32,7 +34,7 @@ export default function TodayPage() {
       setHabits(h);
       if (h.length) {
         const dayStr = todayStr();
-        const starts = h.map((it) => periodStartStr(dayStr, it.period));
+        const starts = h.map((it) => rangeStartStr(it, dayStr));
         const minStart = starts.reduce((a, b) => (a < b ? a : b));
         setCheckins(await fetchCheckins(minStart, dayStr));
       } else {
@@ -48,6 +50,24 @@ export default function TodayPage() {
   useEffect(() => {
     void load();
   }, [load]);
+
+  // 提醒 toast 自动消失
+  useEffect(() => {
+    if (!toast) return;
+    const t = setTimeout(() => setToast(null), 6000);
+    return () => clearTimeout(t);
+  }, [toast]);
+
+  const handleReminder = useCallback((message: string) => {
+    setToast(message);
+    showBrowserNotification(message);
+  }, []);
+
+  const progress = computeProgress(habits, checkins, todayStr());
+  useReminders(
+    progress.map((p) => p.habit),
+    handleReminder,
+  );
 
   async function handleIncrement(habitId: string, delta: number) {
     const date = todayStr();
@@ -91,10 +111,8 @@ export default function TodayPage() {
     }
   }
 
-  const dayStr = todayStr();
-  const progress = computeProgress(habits, checkins, dayStr);
   const completedToday = progress.filter((p) => p.completedToday).length;
-  const allDone = habits.length > 0 && progress.every((p) => p.completed);
+  const allDone = habits.length > 0 && progress.every((p) => p.completed || p.expired);
 
   return (
     <div className="page">
@@ -110,7 +128,7 @@ export default function TodayPage() {
       ) : habits.length === 0 ? (
         <div className="card empty-card">
           <h2>还没有习惯</h2>
-          <p className="muted">添加你想坚持的习惯，然后每天来打卡吧。</p>
+          <p className="muted">添加你想坚持的习惯或一次性任务，然后每天来打卡吧。</p>
           <div className="example-list">
             {EXAMPLES.map((ex) => (
               <button
@@ -124,7 +142,7 @@ export default function TodayPage() {
               </button>
             ))}
           </div>
-          <p className="muted small">也可以到下方「习惯」页自行添加</p>
+          <p className="muted small">也可以到下方「习惯」页自行添加（支持一次性任务和定时提醒）</p>
         </div>
       ) : (
         <>
@@ -137,7 +155,11 @@ export default function TodayPage() {
               </div>
             </div>
             <div className="summary-right">
-              {allDone ? <span className="summary-done">全部完成 🎉</span> : <span className="summary-tip">继续加油 💪</span>}
+              {allDone ? (
+                <span className="summary-done">全部完成 🎉</span>
+              ) : (
+                <span className="summary-tip">继续加油 💪</span>
+              )}
             </div>
           </div>
           {progress.map((p) => (
@@ -148,6 +170,14 @@ export default function TodayPage() {
             />
           ))}
         </>
+      )}
+      {toast && (
+        <div className="toast">
+          <span>{toast}</span>
+          <button type="button" className="toast-close" onClick={() => setToast(null)}>
+            ✕
+          </button>
+        </div>
       )}
     </div>
   );

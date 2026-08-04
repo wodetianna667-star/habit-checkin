@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import type { Habit } from "../lib/types";
 import { createHabit, deleteHabit, fetchHabits, updateHabit, type HabitInput } from "../lib/api";
-import { periodLabel } from "../lib/date";
+import { formatShortCN, periodLabel } from "../lib/date";
 import HabitForm from "../components/HabitForm";
 
 export default function HabitsPage() {
@@ -90,7 +90,10 @@ export default function HabitsPage() {
             <div className="habit-info">
               <div className="habit-name">{h.name}</div>
               <div className="habit-meta">
-                {periodLabel(h.period)} · {h.target} 次
+                {h.type === "once"
+                  ? `一次性 · ${h.end_date ? `截止 ${formatShortCN(h.end_date)}` : "未设截止"}`
+                  : `${periodLabel(h.period)} · ${h.target} 次`}
+                {h.reminder_enabled && ` · 提醒 ${h.reminder_time ?? ""}`}
               </div>
             </div>
             <div className="manage-actions">

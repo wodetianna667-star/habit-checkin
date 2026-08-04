@@ -70,3 +70,25 @@ export function periodLabel(period: Period): string {
   if (period === "weekly") return "每周";
   return "每月";
 }
+
+/** 两个 YYYY-MM-DD 字符串相差的天数（b - a） */
+export function daysBetween(a: string, b: string): number {
+  return Math.round((parseDateStr(b).getTime() - parseDateStr(a).getTime()) / 86400000);
+}
+
+/** YYYY-MM-DD -> "8月4日" */
+export function formatShortCN(dateStr: string): string {
+  const d = parseDateStr(dateStr);
+  return `${d.getMonth() + 1}月${d.getDate()}日`;
+}
+
+/** 今天星期几（1=周一 .. 7=周日） */
+export function isoWeekday(d: Date): number {
+  return d.getDay() === 0 ? 7 : d.getDay();
+}
+
+/** 当前 HH:MM（24 小时制） */
+export function nowTimeStr(): string {
+  const d = new Date();
+  return `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
+}

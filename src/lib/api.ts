@@ -1,4 +1,4 @@
-import type { CheckinRow, Habit, Period } from "./types";
+import type { CheckinRow, Habit, HabitType, Period } from "./types";
 import { getSupabase } from "./supabase";
 
 export async function fetchHabits(): Promise<Habit[]> {
@@ -15,6 +15,13 @@ export interface HabitInput {
   emoji: string;
   period: Period;
   target: number;
+  type: HabitType;
+  end_date: string | null;
+  reminder_enabled: boolean;
+  reminder_frequency: Period | null;
+  reminder_time: string | null;
+  reminder_weekday: number | null;
+  reminder_day: number | null;
 }
 
 export async function createHabit(input: HabitInput): Promise<Habit> {

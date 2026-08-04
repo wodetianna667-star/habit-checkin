@@ -1,4 +1,5 @@
 export type Period = "daily" | "weekly" | "monthly";
+export type HabitType = "recurring" | "once";
 
 export interface Habit {
   id: string;
@@ -7,6 +8,18 @@ export interface Habit {
   emoji: string;
   period: Period;
   target: number;
+  /** recurring=周期习惯；once=一次性任务 */
+  type: HabitType;
+  /** 一次性任务的截止日期（YYYY-MM-DD） */
+  end_date: string | null;
+  reminder_enabled: boolean;
+  reminder_frequency: Period | null;
+  /** HH:MM（24 小时制） */
+  reminder_time: string | null;
+  /** 每周几提醒（1=周一 .. 7=周日） */
+  reminder_weekday: number | null;
+  /** 每月几号提醒（1-31） */
+  reminder_day: number | null;
   sort_order: number;
   created_at: string;
 }
@@ -31,4 +44,10 @@ export interface HabitProgress {
   completed: boolean;
   /** 是否今天达标（今天完成） */
   completedToday: boolean;
+  /** 一次性任务是否已过期且未完成 */
+  expired: boolean;
+  /** 一次性任务的截止日期 */
+  endDate: string | null;
+  /** 一次性任务的剩余天数（含今天，负数=已过期） */
+  daysLeft: number | null;
 }

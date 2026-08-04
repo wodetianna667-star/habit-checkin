@@ -12,6 +12,13 @@ create table if not exists public.habits (
   emoji text not null default '✅',
   period text not null default 'daily' check (period in ('daily', 'weekly', 'monthly')),
   target integer not null default 1 check (target between 1 and 999),
+  type text not null default 'recurring' check (type in ('recurring', 'once')),
+  end_date date,
+  reminder_enabled boolean not null default false,
+  reminder_frequency text check (reminder_frequency in ('daily', 'weekly', 'monthly')),
+  reminder_time text,
+  reminder_weekday integer check (reminder_weekday between 1 and 7),
+  reminder_day integer check (reminder_day between 1 and 31),
   sort_order integer not null default 0,
   created_at timestamptz not null default now()
 );
