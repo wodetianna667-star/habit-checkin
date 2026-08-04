@@ -2,6 +2,7 @@ import { useState, type FormEvent } from "react";
 import type { Habit, HabitType, Period } from "../lib/types";
 import type { HabitInput } from "../lib/api";
 import { periodLabel } from "../lib/date";
+import { defaultReminderMessage } from "../lib/reminders";
 
 const EMOJI_SUGGESTIONS = ["💧", "🏃", "📖", "💪", "😴", "🥗", "☀️", "🧘", "✍️", "🎯"];
 const WEEKDAYS = [
@@ -241,10 +242,10 @@ export default function HabitForm({ initial, busy, onSubmit, onClose }: Props) {
                   <input
                     value={reminderMessage}
                     onChange={(e) => setReminderMessage(e.target.value)}
-                    placeholder="如：该喝水啦"
+                    placeholder="可留空，自动按名称生成"
                     maxLength={30}
                   />
-                  <p className="muted small">留空则使用默认文案</p>
+                  <p className="muted small">留空则自动生成：{defaultReminderMessage(name) || "（先填写名称）"}</p>
                 </div>
               </div>
             )}

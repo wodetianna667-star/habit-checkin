@@ -24,12 +24,20 @@ function dueKey(habit: Habit, time: string): string | null {
   return `d-${todayStr()}`;
 }
 
+/** 根据习惯名称自动生成提醒文案（如「喝水」->「该喝水啦」） */
+export function defaultReminderMessage(name: string): string {
+  const n = name.trim();
+  if (!n) return "";
+  if (n.endsWith("啦")) return n;
+  return `该${n}啦`;
+}
+
 function reminderMessage(habit: Habit): string {
   if (habit.reminder_message?.trim()) return habit.reminder_message.trim();
   if (habit.type === "once") {
     return `「${habit.name}」记得完成哦，别让它过期啦`;
   }
-  return `该打卡啦：「${habit.name}」`;
+  return defaultReminderMessage(habit.name);
 }
 
 export function showBrowserNotification(message: string) {

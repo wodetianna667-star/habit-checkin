@@ -54,6 +54,14 @@ function localParts() {
   };
 }
 
+/** 根据习惯名称自动生成提醒文案（如「喝水」->「该喝水啦」） */
+function defaultReminderMessage(name: string): string {
+  const n = name.trim();
+  if (!n) return "";
+  if (n.endsWith("啦")) return n;
+  return `该${n}啦`;
+}
+
 /** 提醒时间是否在当前 10 分钟窗口内（配合每 5 分钟定时） */
 function inWindow(reminderTime: string, nowMinutes: number): boolean {
   const [h, m] = reminderTime.split(":").map(Number);
@@ -73,7 +81,7 @@ Deno.serve(async (_req) => {
   const now = localParts();
   const { data: habits, error: habitErr } = await sb
     .from("habits")
-    .select("id,user_id,name,reminder_frequency,reminder_times,reminder_weekday,reminder_day")
+    .select("id,user_id,name,reminder_frequency,reminder_times,reminder_weekday,reminder_day,reminder_message")
     .eq("reminder_enabled", true);
   if (habitErr) {
     return new Response(JSON.stringify({ error: habitErr.message }), { status: 500 });
@@ -120,7 +128,7 @@ Deno.serve(async (_req) => {
 
       const payload = JSON.stringify({
         title: "任务来了",
-        body: `「${habit.name}」`,
+        body: habit.reminder_message?.trim() || defaultReminderMessage(habit.name),
         url: "https://wodetianna667-star.github.io/habit-checkin/",
       });
 
