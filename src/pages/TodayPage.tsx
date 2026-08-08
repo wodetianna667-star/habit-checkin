@@ -7,8 +7,8 @@ import {
   incrementCheckin,
   type HabitInput,
 } from "../lib/api";
-import { rangeStartStr, computeProgress } from "../lib/progress";
-import { periodLabel, todayStr } from "../lib/date";
+import { rangeStartStr, computeProgress, computeDayCompletionMap } from "../lib/progress";
+import { periodLabel, todayStr, startOfWeek, toDateStr, daysBetween, formatShortCN } from "../lib/date";
 import { showBrowserNotification, useReminders } from "../lib/reminders";
 import HabitCard from "../components/HabitCard";
 
@@ -114,6 +114,18 @@ export default function TodayPage() {
   const completedToday = progress.filter((p) => p.completedToday).length;
   const allDone = habits.length > 0 && progress.every((p) => p.completed || p.expired);
 
+  // 本周完成情况统计（周一到今天）
+  const dayStr = todayStr();
+  const weekStartDate = startOfWeek(new Date());
+  const weekStartStr = toDateStr(weekStartDate);
+  const weekCount = checkins
+    .filter((c) => c.date >= weekStartStr && c.date <= dayStr)
+    .reduce((s, c) => s + c.count, 0);
+  const weekDayMap = computeDayCompletionMap(habits, checkins, weekStartStr, dayStr);
+  const weekDaysDone = weekDayMap.size;
+  const weekDaysTotal = daysBetween(weekStartStr, dayStr) + 1;
+  const weekPct = Math.round((weekDaysDone / Math.max(1, weekDaysTotal)) * 100);
+
   return (
     <div className="page">
       {loading ? (
@@ -160,6 +172,40 @@ export default function TodayPage() {
               ) : (
                 <span className="summary-tip">继续加油 💪</span>
               )}
+            </div>
+          </div>
+          <div className="card week-summary">
+            <div className="week-summary-head">
+              <span className="week-summary-title">📅 本周完成情况</span>
+              <span className="muted small">
+                {formatShortCN(weekStartStr)} – {formatShortCN(dayStr)}
+              </span>
+            </div>
+            <div className="week-summary-stats">
+              <div className="week-stat">
+                <div className="week-stat-num">
+                  {weekCount}
+                  <span className="week-stat-unit"> 次</span>
+                </div>
+                <div className="week-stat-label">本周打卡</div>
+              </div>
+              <div className="week-stat">
+                <div className="week-stat-num">
+                  {weekDaysDone}
+                  <span className="week-stat-unit"> / {weekDaysTotal} 天</span>
+                </div>
+                <div className="week-stat-label">本周坚持</div>
+              </div>
+              <div className="week-stat">
+                <div className="week-stat-num">
+                  {weekPct}
+                  <span className="week-stat-unit">%</span>
+                </div>
+                <div className="week-stat-label">坚持率</div>
+              </div>
+            </div>
+            <div className="week-bar">
+              <div className="week-bar-fill" style={{ width: `${weekPct}%` }} />
             </div>
           </div>
           {progress.map((p) => (
