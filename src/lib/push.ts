@@ -59,6 +59,9 @@ export async function enablePush(): Promise<void> {
     if (/permission denied|not allowed/i.test(msg)) {
       throw new Error("无法开启推送：可能是无痕模式或浏览器限制，请用普通浏览器（安卓 Chrome / iPhone Safari）重试");
     }
+    if (/registration failed|push service|network error|timeout/i.test(msg)) {
+      throw new Error("开启失败：当前浏览器的推送服务不可用（国行安卓 Chrome 需要谷歌服务）。建议改用 Firefox 或 Edge 开启推送");
+    }
     throw new Error("订阅失败：" + msg);
   }
   const p256dh = sub.getKey("p256dh");
