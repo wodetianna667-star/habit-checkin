@@ -124,7 +124,28 @@ export default function TodayPage() {
   const weekDayMap = computeDayCompletionMap(habits, checkins, weekStartStr, dayStr);
   const weekDaysDone = weekDayMap.size;
   const weekDaysTotal = daysBetween(weekStartStr, dayStr) + 1;
-  const weekPct = Math.round((weekDaysDone / Math.max(1, weekDaysTotal)) * 100);
+
+  // 本周目标：每日习惯按天累计，每周习惯按整周目标，每月习惯按比例折算
+  const daysInCurMonth = new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0).getDate();
+  const weekTargetFor = (h: Habit): number => {
+    if (h.type === "once") return 0;
+    if (h.period === "daily") return h.target * weekDaysTotal;
+    if (h.period === "weekly") return h.target;
+    return Math.round((h.target * weekDaysTotal) / daysInCurMonth);
+  };
+  const weekTarget = habits.reduce((s, h) => s + weekTargetFor(h), 0);
+  const weekCompletedFor = (h: Habit): boolean => {
+    if (h.type === "once") return false;
+    const sum = checkins
+      .filter((c) => c.habit_id === h.id && c.date >= weekStartStr && c.date <= dayStr)
+      .reduce((s, c) => s + c.count, 0);
+    if (h.period === "daily") return sum >= h.target * weekDaysTotal;
+    return sum >= h.target;
+  };
+  const weekTotalHabits = habits.filter((h) => h.type !== "once").length;
+  const weekDoneHabits = habits.filter((h) => h.type !== "once" && weekCompletedFor(h)).length;
+  const pct = (done: number, total: number) =>
+    total > 0 ? Math.min(100, Math.round((done / total) * 100)) : 0;
 
   return (
     <div className="page">
@@ -181,31 +202,38 @@ export default function TodayPage() {
                 {formatShortCN(weekStartStr)} – {formatShortCN(dayStr)}
               </span>
             </div>
-            <div className="week-summary-stats">
-              <div className="week-stat">
-                <div className="week-stat-num">
-                  {weekCount}
-                  <span className="week-stat-unit"> 次</span>
-                </div>
-                <div className="week-stat-label">本周打卡</div>
+            <div className="week-row">
+              <div className="week-row-top">
+                <span className="week-row-label">本周打卡</span>
+                <span className="week-row-num">
+                  {weekCount} / {weekTarget} 次
+                </span>
               </div>
-              <div className="week-stat">
-                <div className="week-stat-num">
-                  {weekDaysDone}
-                  <span className="week-stat-unit"> / {weekDaysTotal} 天</span>
-                </div>
-                <div className="week-stat-label">本周坚持</div>
-              </div>
-              <div className="week-stat">
-                <div className="week-stat-num">
-                  {weekPct}
-                  <span className="week-stat-unit">%</span>
-                </div>
-                <div className="week-stat-label">坚持率</div>
+              <div className="week-bar">
+                <div className="week-bar-fill" style={{ width: `${pct(weekCount, weekTarget)}%` }} />
               </div>
             </div>
-            <div className="week-bar">
-              <div className="week-bar-fill" style={{ width: `${weekPct}%` }} />
+            <div className="week-row">
+              <div className="week-row-top">
+                <span className="week-row-label">本周坚持</span>
+                <span className="week-row-num">
+                  {weekDaysDone} / {weekDaysTotal} 天
+                </span>
+              </div>
+              <div className="week-bar">
+                <div className="week-bar-fill" style={{ width: `${pct(weekDaysDone, weekDaysTotal)}%` }} />
+              </div>
+            </div>
+            <div className="week-row">
+              <div className="week-row-top">
+                <span className="week-row-label">达标习惯</span>
+                <span className="week-row-num">
+                  {weekDoneHabits} / {weekTotalHabits} 个
+                </span>
+              </div>
+              <div className="week-bar">
+                <div className="week-bar-fill" style={{ width: `${pct(weekDoneHabits, weekTotalHabits)}%` }} />
+              </div>
             </div>
           </div>
           {progress.map((p) => (
