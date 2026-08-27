@@ -14,6 +14,8 @@ export default function HabitsPage() {
   const [editing, setEditing] = useState<Habit | null>(null);
   const [busy, setBusy] = useState(false);
   const [exported, setExported] = useState(false);
+  const [exportMsg, setExportMsg] = useState("");
+  const [exporting, setExporting] = useState(false);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -55,6 +57,28 @@ export default function HabitsPage() {
     }
   }
 
+  async function handleExport() {
+    if (countReminderHabits(habits) === 0) {
+      alert("还没有开启定时提醒的习惯。请先点习惯的「编辑」→ 打开「定时提醒」并设置时间，再导出日历。");
+      return;
+    }
+    setExporting(true);
+    try {
+      const r = await downloadRemindersIcs(habits);
+      setExportMsg(
+        r.usedShare
+          ? "已生成日历文件！请在弹出的分享面板里选择「日历」或「文件管理」打开并导入。"
+          : "已生成 21tian-reminders.ics，请用手机日历打开并导入 👇",
+      );
+      setExported(true);
+      setTimeout(() => setExported(false), 10000);
+    } catch (err) {
+      alert(err instanceof Error ? err.message : "导出失败，请重试");
+    } finally {
+      setExporting(false);
+    }
+  }
+
   async function handleDelete(h: Habit) {
     if (!window.confirm(`确定删除「${h.name}」吗？它的打卡记录也会一并删除。`)) return;
     try {
@@ -82,20 +106,14 @@ export default function HabitsPage() {
         <button
           type="button"
           className="btn primary"
-          disabled={countReminderHabits(habits) === 0}
-          onClick={() => {
-            downloadRemindersIcs(habits);
-            setExported(true);
-            setTimeout(() => setExported(false), 6000);
-          }}
+          disabled={exporting}
+          onClick={() => void handleExport()}
         >
-          导出日历文件 (.ics)
+          {exporting ? "生成中…" : "导出日历文件 (.ics)"}
         </button>
-        {exported && (
-          <p className="ok-text">已生成 21tian-reminders.ics，请用手机日历打开并导入 👇</p>
-        )}
+        {exported && <p className="ok-text">{exportMsg}</p>}
         {countReminderHabits(habits) === 0 && (
-          <p className="muted small">还没有开启定时提醒的习惯，先在「编辑」里打开提醒再导出。</p>
+          <p className="muted small">当前没有开启定时提醒的习惯。先点习惯「编辑」→ 打开「定时提醒」设置时间，再导出。</p>
         )}
       </div>
       {loading ? (

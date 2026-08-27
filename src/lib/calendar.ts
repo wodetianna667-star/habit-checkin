@@ -1,4 +1,7 @@
 import type { Habit } from "./types";
+import { Capacitor } from "@capacitor/core";
+import { Directory, Encoding, Filesystem } from "@capacitor/filesystem";
+import { Share } from "@capacitor/share";
 
 function pad(n: number): string {
   return String(n).padStart(2, "0");
@@ -71,9 +74,16 @@ export function buildRemindersIcs(habits: Habit[]): string {
   return lines.join("\r\n") + "\r\n";
 }
 
-/** 生成并下载 .ics 文件 */
-export function downloadRemindersIcs(habits: Habit[]): void {
+/** 生成并导出 .ics 文件：App 内走系统分享，浏览器直接下载 */
+export async function downloadRemindersIcs(habits: Habit[]): Promise<{ usedShare: boolean }> {
   const content = buildRemindersIcs(habits);
+  if (Capacitor.isNativePlatform()) {
+    const path = "21tian-reminders.ics";
+    await Filesystem.writeFile({ path, data: content, directory: Directory.Cache, encoding: Encoding.UTF8 });
+    const uri = await Filesystem.getUri({ path, directory: Directory.Cache });
+    await Share.share({ title: "21天日历提醒", files: [uri.uri] });
+    return { usedShare: true };
+  }
   const blob = new Blob([content], { type: "text/calendar;charset=utf-8" });
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
@@ -83,6 +93,7 @@ export function downloadRemindersIcs(habits: Habit[]): void {
   a.click();
   document.body.removeChild(a);
   setTimeout(() => URL.revokeObjectURL(url), 1000);
+  return { usedShare: false };
 }
 
 /** 统计开启了提醒的习惯数量（用于按钮状态） */

@@ -11,3 +11,8 @@ supabase/.temp/
 
 # Local Netlify folder
 .netlify
+
+# 本地生成的安装包与说明（不进代码库）
+21tian.apk
+21tian.zip
+下载安装说明.html
