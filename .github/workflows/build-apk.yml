@@ -15,7 +15,7 @@ on:
       - ".github/workflows/build-apk.yml"
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   build:
@@ -83,8 +83,15 @@ jobs:
 
       - name: Upload APK
         if: steps.build.outcome == 'success'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact
         with:
           name: 21tian-apk
           path: apk-output/21tian.apk
           if-no-files-found: error
+
+      - name: Publish Release
+        if: steps.build.outcome == 'success'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create v1.0.0 apk-output/21tian.apk --title "21天 App" --notes "安卓安装包（APK），直接下载 21tian.apk 安装" 2>/dev/null || gh release upload v1.0.0 apk-output/21tian.apk --clobber
