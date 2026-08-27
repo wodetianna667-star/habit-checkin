@@ -83,7 +83,7 @@ jobs:
 
       - name: Upload APK
         if: steps.build.outcome == 'success'
-        uses: actions/upload-artifact
+        uses: actions/upload-artifact@v4
         with:
           name: 21tian-apk
           path: apk-output/21tian.apk
