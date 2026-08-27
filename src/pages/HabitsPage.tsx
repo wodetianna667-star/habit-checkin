@@ -4,6 +4,7 @@ import { createHabit, deleteHabit, fetchHabits, updateHabit, type HabitInput } f
 import { formatShortCN, periodLabel } from "../lib/date";
 import HabitForm from "../components/HabitForm";
 import PushSettings from "../components/PushSettings";
+import { countReminderHabits, downloadRemindersIcs } from "../lib/calendar";
 
 export default function HabitsPage() {
   const [habits, setHabits] = useState<Habit[]>([]);
@@ -12,6 +13,7 @@ export default function HabitsPage() {
   const [formOpen, setFormOpen] = useState(false);
   const [editing, setEditing] = useState<Habit | null>(null);
   const [busy, setBusy] = useState(false);
+  const [exported, setExported] = useState(false);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -72,6 +74,30 @@ export default function HabitsPage() {
         </button>
       </div>
       <PushSettings />
+      <div className="card push-card">
+        <h3>📅 日历提醒</h3>
+        <p className="muted small">
+          把习惯的提醒时间导出为日历文件，导入手机「日历」后到点会响铃提醒。不依赖谷歌服务，红米日历直接支持。
+        </p>
+        <button
+          type="button"
+          className="btn primary"
+          disabled={countReminderHabits(habits) === 0}
+          onClick={() => {
+            downloadRemindersIcs(habits);
+            setExported(true);
+            setTimeout(() => setExported(false), 6000);
+          }}
+        >
+          导出日历文件 (.ics)
+        </button>
+        {exported && (
+          <p className="ok-text">已生成 21tian-reminders.ics，请用手机日历打开并导入 👇</p>
+        )}
+        {countReminderHabits(habits) === 0 && (
+          <p className="muted small">还没有开启定时提醒的习惯，先在「编辑」里打开提醒再导出。</p>
+        )}
+      </div>
       {loading ? (
         <p className="muted center pad">加载中…</p>
       ) : error ? (

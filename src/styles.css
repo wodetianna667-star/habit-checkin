@@ -1025,3 +1025,9 @@ code {
   background: linear-gradient(90deg, #16a34a, #0d9488);
   transition: width 0.3s ease;
 }
+
+.ok-text {
+  color: #15803d;
+  font-size: 13px;
+  margin-top: 8px;
+}
