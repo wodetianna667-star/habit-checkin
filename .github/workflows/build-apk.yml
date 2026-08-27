@@ -62,7 +62,10 @@ jobs:
       - name: Build APK (debug)
         id: build
         continue-on-error: true
-        run: cd android && ./gradlew assembleDebug --no-daemon 2>&1 | tee /tmp/gradle.log
+        run: |
+          cd android
+          set -o pipefail
+          ./gradlew assembleDebug --no-daemon 2>&1 | tee /tmp/gradle.log
 
       - name: List APK outputs
         if: always()
