@@ -64,6 +64,13 @@ jobs:
         continue-on-error: true
         run: cd android && ./gradlew assembleDebug --no-daemon 2>&1 | tee /tmp/gradle.log
 
+      - name: List APK outputs
+        if: always()
+        run: |
+          echo "build_outcome=${{ steps.build.outcome }}"
+          find android/app/build/outputs -name "*.apk" 2>/dev/null | tee /tmp/apk-list.txt
+          echo "::notice::APK_LIST=$(cat /tmp/apk-list.txt | tr '\n' ' ')"
+
       - name: Report error
         if: steps.build.outcome == 'failure'
         run: |
@@ -75,5 +82,5 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: 21tian-apk
-          path: android/app/build/outputs/apk/debug/app-debug.apk
+          path: android/app/build/outputs/apk/**/*.apk
           if-no-files-found: error
