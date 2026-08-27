@@ -52,10 +52,26 @@ jobs:
       - name: Sync Capacitor
         run: npx cap sync android
 
+      - name: Ensure Android SDK
+        run: |
+          yes | sdkmanager --licenses > /dev/null 2>&1 || true
+          sdkmanager "platforms;android-36" "build-tools;36.0.0" > /dev/null 2>&1 || true
+          echo "ANDROID_HOME=$ANDROID_HOME"
+          sdkmanager --list_installed 2>/dev/null | grep -E "platforms;android-36|build-tools;36" | head
+
       - name: Build APK (debug)
-        run: cd android && ./gradlew assembleDebug --no-daemon
+        id: build
+        continue-on-error: true
+        run: cd android && ./gradlew assembleDebug --no-daemon 2>&1 | tee /tmp/gradle.log
+
+      - name: Report error
+        if: steps.build.outcome == 'failure'
+        run: |
+          echo "::error::$(tail -80 /tmp/gradle.log | tr '\n' ' ' | head -c 2500)"
+          exit 1
 
       - name: Upload APK
+        if: steps.build.outcome == 'success'
         uses: actions/upload-artifact@v4
         with:
           name: 21tian-apk
